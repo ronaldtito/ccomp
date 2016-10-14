@@ -103,10 +103,6 @@ int begining(struct node *head, int n){
     return begin;
 }
 main(){
-    struct node *head;
-    struct node *head2;                            h
-    head=create(5);
-    head2=create(4);
-    imprimir(doble(head,head2));
+   
 }
 
