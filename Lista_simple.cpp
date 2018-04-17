@@ -1,136 +1,147 @@
 #include <iostream>
 using namespace std;
 
-
-class Nodo{
-public:
-    int val;
-    Nodo *next;
-};
-
-class LISTAS
+template <class T>
+class c_less
 {
 public:
-    Nodo *head;
-    LISTAS();
-  //  void create(int );
-  //  void push(int );
-    void insertar(int , int );
-  //  int pop(int );
-    void eliminar_nodo(int );
-  //  void vacio();
+    inline bool operator() (T a ,T b)
+    {
+        return a < b ;
+    }
+};
+
+template <class T>
+class c_greater
+{
+public:
+    inline bool operator() (T a ,T b)
+    {
+        return a > b ;
+    }
+};
+
+
+template <class T>
+class Node{
+public:
+    T data;
+    Node *next;
+    Node();
+    Node(T x);
+};
+
+template <class T>
+Node<T>::Node(){ next = NULL;}
+
+template <class T>
+Node<T>::Node(T x){ data = x ;next = NULL;}
+
+
+template <class T,  class Op>
+class LISTA
+{
+public:
+    Node<T> *head;
+    LISTA();
+    bool find(T x , Node<T> *&p, Node<T> *&prev);
+    bool insertar(T x);
+    bool eliminar_nodo(T x);
     void print();
 };
 
-LISTAS::LISTAS()
+template <class T, class Op>
+LISTA<T,Op>::LISTA()
 {
     head=NULL;
 }
 
-void LISTAS::create(int n){
-    Nodo *prev, *cur;
-    head->val=1;
-    prev = head;
-    for(int i=2;i<=n;i++){
-        cur=new Nodo();
-        cur->val=i;
-        prev->next=cur;
-        prev=cur;
-    }
-    prev->next=NULL;
+template <class T, class Op>
+bool LISTA<T,Op>::find(T x, Node<T> *&p,Node<T> *&prev)
+{
+    Op op;
+    for(p = head; p != NULL && op(p->data, x); p = p->next)
+        prev = p;
+    if(p != NULL && x == p->data )
+            return true;
+    else
+        return false;
 }
 
-void LISTAS::push(int x){
-    Nodo *nuevo,*temp;
-    nuevo =new Nodo();
-    nuevo->val=x;
-    temp=head;
-    if(head==NULL){
-        head=nuevo;
+template <class T, class Op>
+bool LISTA<T, Op>::insertar(T x){
+    
+    Node<T> *nuevo,*temp=head,*prev;
+    
+    nuevo=new Node<T>(x);
+    
+    
+    if( temp == NULL )
+    {
+        head = nuevo;
+        return true;
     }
-    else{
-        while(temp->next!=NULL){
-            temp=temp->next;
-        }
-        temp->next=nuevo;
-    }
-}
-void LISTAS::insertar(int pos, int x){
-    Nodo *nuevo,*temp,*prev;
-    nuevo=new Nodo();
-    nuevo->val=x;
-    if(pos==1){
+    if(temp->data > x)
+    {
         nuevo->next=head;
         head=nuevo;
     }
-    else{
-        temp=head;
-        for(int i = 1; i <=pos-2; i++){
-            temp = temp->next;
-        }
-        prev=temp->next;
-        temp->next=nuevo;
-        nuevo->next=prev;
+    
+    if(find(x, temp,prev))
+    {
+        return false;
     }
+    prev->next = nuevo;
+    nuevo->next = temp;
+    return true;
 }
 
-int LISTAS::pop(int pos){
-    int valor;
-    Nodo *temp, *prev, *cur;
-    if(pos == 1){
-        valor =head->val;
-        temp=head;
-        head=head->next;
+template<class T , class Op>
+bool LISTA<T, Op>::eliminar_nodo(T x){
+    Node<T> *prev, *cur, *temp;
+    
+    cur = head->next;
+
+    temp = head;
+    
+    if(temp->data==x){
+        head=temp->next;
         delete temp;
     }
-    else{
-        cur=head;
-        for(int i = 1; i <=pos-2;i++){
-            cur = cur->next;
-        }
-        prev = cur->next;
-        cur->next=prev->next;
-        valor = prev->val;
-        temp=prev;
-        delete temp;
-    }
-    return valor;
-}
-
-void LISTAS::eliminar_nodo(int key){
-    Nodo *prev, *cur, *tem;
-    cur = head ->next;
-    if(head->val==key){
-        tem=head;
-        head=head->next;
-        delete tem;
-    }
-    else{
-        while(cur != NULL){
-            if(cur->val == key){
-                prev->next = cur->next;
-                delete cur;
-                break;
-            }
-            prev=cur;
-            cur=cur->next;
+    
+    else
+    {
+        if(find(x, temp, prev))
+        {
+            prev->next = temp->next;
+            delete temp;
+            return true;
         }
     }
+    return false;
 }
 
-void LISTAS::print(){
-    Nodo *tem;
-    tem=head;
-    while(tem != NULL){
-        cout<<tem->val<<" ";
-        tem=tem->next;
+
+template <class T, class Op>
+void LISTA<T, Op>::print(){
+    Node<T> *temp;
+    temp=head;
+    while(temp != NULL){
+        cout<<temp->data<<" ";
+        temp=temp->next;
     }
     cout<<endl;
 }
 
 
 int main() {
-    // insert code here...
-    std::cout << "Hello, World!\n";
-    return 0;
+    LISTA<int, c_less<int> > *Lista1 = new LISTA<int , c_less<int> >();
+    Lista1->insertar(5);
+    Lista1->insertar(3);
+    Lista1->insertar(2);
+    Lista1->insertar(10);
+    Lista1->insertar(4);
+    Lista1->eliminar_nodo(2);
+    Lista1->print();
+    
 }
